@@ -10,6 +10,8 @@ export function ResourceFeed({ session }) {
   // Editing State
   const [editingId, setEditingId] = useState(null);
   const [tempCategoryId, setTempCategoryId] = useState(null);
+  const [editingDescId, setEditingDescId] = useState(null);
+  const [tempDescription, setTempDescription] = useState('');
 
   // Discovery State
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,6 +105,42 @@ export function ResourceFeed({ session }) {
     e.stopPropagation();
     setEditingId(null);
   }
+
+  const startEditDesc = (e, res) => {
+    e.stopPropagation();
+    setEditingDescId(res.id);
+    setTempDescription(res.description || '');
+  };
+
+  const saveDescription = async (e) => {
+    e.stopPropagation();
+
+    // Optimistic Update
+    const updatedResources = resources.map(r =>
+      r.id === editingDescId
+        ? { ...r, description: tempDescription }
+        : r
+    );
+    setResources(updatedResources);
+
+    const idToUpdate = editingDescId;
+    setEditingDescId(null);
+
+    // API Call
+    const { error } = await supabase
+      .from('resources')
+      .update({ description: tempDescription })
+      .eq('id', idToUpdate);
+
+    if (error) {
+      console.error('Error updating description:', error);
+    }
+  };
+
+  const cancelEditDesc = (e) => {
+    e.stopPropagation();
+    setEditingDescId(null);
+  };
 
   // Filter and Sort Logic
   const filteredResources = resources
@@ -198,7 +236,28 @@ export function ResourceFeed({ session }) {
                     </div>
                   </div>
 
-                  {res.description && <p className="res-desc">{res.description}</p>}
+                  {editingDescId === res.id ? (
+                    <div onClick={(e) => e.stopPropagation()} className="desc-edit-box">
+                      <textarea
+                        value={tempDescription}
+                        onChange={(e) => setTempDescription(e.target.value)}
+                        className="desc-input"
+                        rows="3"
+                      />
+                      <div className="desc-actions">
+                        <button className="action-btn save" onClick={saveDescription}><FaCheck /></button>
+                        <button className="action-btn cancel" onClick={cancelEditDesc}><FaTimes /></button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="desc-display-wrapper">
+                      {res.description && <p className="res-desc">{res.description}</p>}
+                      {!res.description && <span className="no-desc">No description</span>}
+                      <button className="edit-desc-btn" onClick={(e) => startEditDesc(e, res)} title="Edit Description">
+                        <FaEdit />
+                      </button>
+                    </div>
+                  )}
 
                   <div className="bottom-line">
                     <div className="meta-left">
@@ -476,6 +535,62 @@ export function ResourceFeed({ session }) {
         .action-btn.save { color: #4caf50; }
         .action-btn.cancel { color: #f44336; }
 
+        .res-desc {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-align: left; /* Explicitly left aligned */
+        }
+        .desc-display-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            group: desc-group;
+        }
+        .edit-desc-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            opacity: 0;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-size: 0.7rem;
+            padding: 0;
+            margin-top: 2px;
+        }
+        .resource-card:hover .edit-desc-btn {
+            opacity: 0.5;
+        }
+        .edit-desc-btn:hover {
+            opacity: 1 !important;
+            color: var(--primary);
+        }
+        .desc-edit-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .desc-input {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--color-text-main);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem;
+            font-size: 0.85rem;
+            resize: vertical;
+        }
+        .no-desc {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: rgba(255,255,255,0.2);
+        }
+
         .meta-left {
             display: flex;
             align-items: center;
@@ -522,9 +637,18 @@ function PreviewModal({ resource, onClose }) {
             </div>
           )}
           {resource.type === 'file' && (
-            <div className="file-download">
-              <p>Cannot preview this file type.</p>
-              <a href={url} download={resource.meta?.name || 'download'}>Download File</a>
+            <div className="pdf-container">
+              {/* Try to preview with Google Docs Viewer */}
+              <iframe
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`}
+                width="100%"
+                height="500px"
+                title="Document Preview"
+              ></iframe>
+              <div className="file-download" style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(0,0,0,0.2)' }}>
+                <p style={{ fontSize: '0.8rem', marginBottom: '0.5rem' }}>Preview not loading?</p>
+                <a href={url} download={resource.meta?.name || 'download'}>Download File</a>
+              </div>
             </div>
           )}
         </div>
