@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { FaFile, FaFilePdf, FaFileImage, FaFileAudio, FaExternalLinkAlt, FaTimes, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaEdit, FaCheck, FaDownload } from 'react-icons/fa';
+import { FaFile, FaFilePdf, FaFileImage, FaFileAudio, FaExternalLinkAlt, FaTimes, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaEdit, FaCheck, FaDownload, FaTrash } from 'react-icons/fa';
 
 export function ResourceFeed({ session }) {
   const [resources, setResources] = useState([]);
@@ -142,6 +142,39 @@ export function ResourceFeed({ session }) {
     setEditingDescId(null);
   };
 
+  const deleteResource = async (e, res) => {
+    e.stopPropagation();
+
+    if (!confirm(`Are you sure you want to delete "${res.meta?.name || res.meta?.title || 'this resource'}"?`)) {
+      return;
+    }
+
+    // Optimistically remove from UI
+    setResources(resources.filter(r => r.id !== res.id));
+
+    // Delete from storage if it's a file (not a link)
+    if (res.type !== 'link' && res.meta?.path) {
+      const { error: storageError } = await supabase.storage
+        .from('resources')
+        .remove([res.meta.path]);
+
+      if (storageError) console.error('Error deleting file from storage:', storageError);
+    }
+
+    // Delete from database
+    const { error: dbError } = await supabase
+      .from('resources')
+      .delete()
+      .eq('id', res.id);
+
+    if (dbError) {
+      console.error('Error deleting resource:', dbError);
+      alert('Failed to delete resource');
+      // Restore on error
+      setResources([...resources]);
+    }
+  };
+
   // Filter and Sort Logic
   const filteredResources = resources
     .filter(res => {
@@ -269,6 +302,9 @@ export function ResourceFeed({ session }) {
                           <FaDownload />
                         </a>
                       )}
+                      <button onClick={(e) => deleteResource(e, res)} className="delete-icon" title="Delete">
+                        <FaTrash />
+                      </button>
                     </div>
 
                     <div onClick={(e) => e.stopPropagation()}>
@@ -610,6 +646,21 @@ export function ResourceFeed({ session }) {
         .download-icon:hover {
             opacity: 1;
             color: var(--primary);
+        }
+        .delete-icon {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .delete-icon:hover {
+            opacity: 1;
+            color: #f44336;
         }
       `}</style>
     </div >
