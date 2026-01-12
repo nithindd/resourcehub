@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { FaFile, FaFilePdf, FaFileImage, FaFileAudio, FaExternalLinkAlt, FaTimes, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa';
+import { FaFile, FaFilePdf, FaFileImage, FaFileAudio, FaExternalLinkAlt, FaTimes, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaEdit, FaCheck } from 'react-icons/fa';
 
 export function ResourceFeed({ session }) {
   const [resources, setResources] = useState([]);
   const [categories, setCategories] = useState([]);
   const [previewResource, setPreviewResource] = useState(null);
+
+  // Editing State
+  const [editingId, setEditingId] = useState(null);
+  const [tempCategoryId, setTempCategoryId] = useState(null);
 
   // Discovery State
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,12 +59,50 @@ export function ResourceFeed({ session }) {
   };
 
   const openPreview = (res) => {
+    if (editingId) return; // Don't open if editing
     if (res.type === 'link') {
       window.open(res.content_url, '_blank');
     } else {
       setPreviewResource(res);
     }
   };
+
+  const startEdit = (e, res) => {
+    e.stopPropagation();
+    setEditingId(res.id);
+    setTempCategoryId(res.category_id);
+  };
+
+  const saveCategory = async (e) => {
+    e.stopPropagation();
+    if (!tempCategoryId) return;
+
+    // Optimistic Update
+    const updatedResources = resources.map(r =>
+      r.id === editingId
+        ? { ...r, category_id: Number(tempCategoryId), categories: categories.find(c => c.id == tempCategoryId) }
+        : r
+    );
+    setResources(updatedResources);
+
+    const idToUpdate = editingId;
+    setEditingId(null);
+
+    // API Call
+    const { error } = await supabase
+      .from('resources')
+      .update({ category_id: tempCategoryId })
+      .eq('id', idToUpdate);
+
+    if (error) {
+      console.error('Error updating category:', error);
+    }
+  };
+
+  const cancelEdit = (e) => {
+    e.stopPropagation();
+    setEditingId(null);
+  }
 
   // Filter and Sort Logic
   const filteredResources = resources
@@ -162,7 +204,31 @@ export function ResourceFeed({ session }) {
                     <span className="res-date">
                       {new Date(res.created_at).toLocaleDateString()} {new Date(res.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
-                    <span className="category-tag">{res.categories?.name}</span>
+
+                    <div onClick={(e) => e.stopPropagation()}>
+                      {editingId === res.id ? (
+                        <div className="edit-mode">
+                          <select
+                            value={tempCategoryId}
+                            onChange={(e) => setTempCategoryId(e.target.value)}
+                            className="mini-select"
+                          >
+                            {categories.map(cat => (
+                              <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                          </select>
+                          <button className="action-btn save" onClick={saveCategory}><FaCheck /></button>
+                          <button className="action-btn cancel" onClick={cancelEdit}><FaTimes /></button>
+                        </div>
+                      ) : (
+                        <div className="view-mode">
+                          <span className="category-tag">{res.categories?.name}</span>
+                          <button className="edit-cat-btn" onClick={(e) => startEdit(e, res)} title="Move Category">
+                            <FaEdit />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -356,6 +422,52 @@ export function ResourceFeed({ session }) {
             color: var(--color-text-muted);
             width: 140px;
         }
+        .view-mode {
+             display: flex;
+             align-items: center;
+             gap: 0.5rem;
+        }
+        .edit-cat-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .edit-cat-btn:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+        .edit-mode {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(0,0,0,0.2);
+            padding: 2px 5px;
+            border-radius: var(--radius-sm);
+        }
+        .mini-select {
+            background: var(--surface);
+            color: white;
+            border: none;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            max-width: 100px;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            font-size: 0.8rem;
+        }
+        .action-btn.save { color: #4caf50; }
+        .action-btn.cancel { color: #f44336; }
       `}</style>
     </div >
   );
