@@ -37,10 +37,22 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Resource Capture</h1>
-        <button className="logout-btn" onClick={handleLogout} title="Sign Out">
-          <FaSignOutAlt />
-        </button>
+        <h1>Resource Hub</h1>
+        <div className="user-area">
+          {session.user.user_metadata.avatar_url && (
+            <img
+              src={session.user.user_metadata.avatar_url}
+              alt="Avatar"
+              className="user-avatar"
+            />
+          )}
+          <span className="user-name" title={session.user.email}>
+            {session.user.user_metadata.full_name || session.user.email}
+          </span>
+          <button className="logout-btn" onClick={handleLogout} title="Sign Out">
+            <FaSignOutAlt />
+          </button>
+        </div>
       </header>
 
       <main className="app-content">
@@ -84,22 +96,47 @@ function App() {
           align-items: center;
         }
         .app-header h1 {
-          font-size: 1.5rem;
+          font-size: 1.2rem;
           margin: 0;
           background: linear-gradient(135deg, #fff 0%, #aaa 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
-        .logout-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            padding: 0.5rem;
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: rgba(255,255,255,0.05);
+            padding: 0.3rem 0.5rem;
+            border-radius: 20px;
+        }
+        .user-avatar {
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-name {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            padding: 0.2rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: color 0.2s;
+        }
+        .logout-btn:hover {
+            color: #ff6666;
         }
         .bottom-nav {
           position: fixed;

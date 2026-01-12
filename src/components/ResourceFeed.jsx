@@ -78,6 +78,28 @@ export function ResourceFeed({ session }) {
 
   return (
     <div className="resource-feed">
+      {/* App Summary & Stats */}
+      <div className="app-summary">
+        <h4>Dashboard Overview</h4>
+        <table className="summary-table">
+          <tbody>
+            <tr>
+              <td colSpan="2" style={{ paddingBottom: '1rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                Centralized storage for links, files, and documents across Google accounts.
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Total Resources</strong></td>
+              <td>{resources.length}</td>
+            </tr>
+            <tr>
+              <td><strong>Categories</strong></td>
+              <td>{categories.length}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <h3>Your Resources</h3>
 
       {/* Discovery Controls */}
@@ -114,46 +136,50 @@ export function ResourceFeed({ session }) {
         </button>
       </div>
 
-      {!filteredResources || filteredResources.length === 0 ? (
-        <p className="empty-state">No resources match your filters.</p>
-      ) : (
-        <div className="feed-list">
-          {filteredResources.map(res => (
-            <div key={res.id} className="resource-card" onClick={() => openPreview(res)}>
-              <div className="icon-wrapper">
-                {getIcon(res.type)}
-              </div>
-              <div className="details">
-                <div className="top-line">
-                  <span className="res-name">
-                    {res.meta?.name || res.meta?.title || res.content_url.substring(0, 30)}
-                  </span>
-                  <div className="badges">
-                    <span className={`type-badge ${getTypeBadgeClass(res.type)}`}>{res.type.toUpperCase()}</span>
+      {
+        !filteredResources || filteredResources.length === 0 ? (
+          <p className="empty-state">No resources match your filters.</p>
+        ) : (
+          <div className="feed-list">
+            {filteredResources.map(res => (
+              <div key={res.id} className="resource-card" onClick={() => openPreview(res)}>
+                <div className="icon-wrapper">
+                  {getIcon(res.type)}
+                </div>
+                <div className="details">
+                  <div className="top-line">
+                    <span className="res-name">
+                      {res.meta?.name || res.meta?.title || res.content_url.substring(0, 30)}
+                    </span>
+                    <div className="badges">
+                      <span className={`type-badge ${getTypeBadgeClass(res.type)}`}>{res.type.toUpperCase()}</span>
+                    </div>
+                  </div>
+
+                  {res.description && <p className="res-desc">{res.description}</p>}
+
+                  <div className="bottom-line">
+                    <span className="res-date">
+                      {new Date(res.created_at).toLocaleDateString()} {new Date(res.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <span className="category-tag">{res.categories?.name}</span>
                   </div>
                 </div>
-
-                {res.description && <p className="res-desc">{res.description}</p>}
-
-                <div className="bottom-line">
-                  <span className="res-date">
-                    {new Date(res.created_at).toLocaleDateString()} {new Date(res.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                  <span className="category-tag">{res.categories?.name}</span>
-                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )
+      }
 
       {/* Preview Modal */}
-      {previewResource && (
-        <PreviewModal
-          resource={previewResource}
-          onClose={() => setPreviewResource(null)}
-        />
-      )}
+      {
+        previewResource && (
+          <PreviewModal
+            resource={previewResource}
+            onClose={() => setPreviewResource(null)}
+          />
+        )
+      }
 
       <style>{`
         .discovery-bar {
@@ -181,6 +207,10 @@ export function ResourceFeed({ session }) {
             padding: 0.5rem;
             width: 100%;
             outline: none;
+        }
+        .filter-wrapper select option {
+            background-color: var(--surface);
+            color: white;
         }
         .search-icon, .filter-icon {
             color: var(--color-text-muted);
@@ -297,8 +327,37 @@ export function ResourceFeed({ session }) {
           padding: 0.1rem 0.4rem;
           border-radius: 4px;
         }
+
+        .app-summary {
+            background: rgba(255,255,255,0.03);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .app-summary h4 {
+            margin-top: 0;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .summary-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+        .summary-table td:first-child {
+            color: var(--color-text-muted);
+            width: 140px;
+        }
       `}</style>
-    </div>
+    </div >
   );
 }
 
