@@ -35,6 +35,26 @@ Resource Hub is a modern, centralized web application designed to capture, organ
 *   **Storage**: Supabase Storage Buckets
 *   **Deployment**: Vercel
 
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    User[User] -->|Access via Browser| Client[React Frontend (Vercel)]
+    
+    subgraph "Supabase Backend"
+        Auth[Authentication]
+        DB[(PostgreSQL Database)]
+        Storage[File Storage]
+    end
+    
+    Client -->|Sign In / Session| Auth
+    Client -->|Read / Write Data| DB
+    Client -->|Upload / Download Files| Storage
+    
+    Auth -->|RLS Policies| DB
+    Auth -->|Access Control| Storage
+```
+
 ## 📦 Setup & Installation
 
 1.  **Clone the repository**
