@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { FaFile, FaFilePdf, FaFileImage, FaFileAudio, FaExternalLinkAlt, FaTimes, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaEdit, FaCheck } from 'react-icons/fa';
+import { FaFile, FaFilePdf, FaFileImage, FaFileAudio, FaExternalLinkAlt, FaTimes, FaSearch, FaFilter, FaSortAmountDown, FaSortAmountUp, FaEdit, FaCheck, FaDownload } from 'react-icons/fa';
 
 export function ResourceFeed({ session }) {
   const [resources, setResources] = useState([]);
@@ -201,9 +201,16 @@ export function ResourceFeed({ session }) {
                   {res.description && <p className="res-desc">{res.description}</p>}
 
                   <div className="bottom-line">
-                    <span className="res-date">
-                      {new Date(res.created_at).toLocaleDateString()} {new Date(res.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                    <div className="meta-left">
+                      <span className="res-date">
+                        {new Date(res.created_at).toLocaleDateString()} {new Date(res.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      {res.type !== 'link' && (
+                        <a href={res.content_url} download onClick={(e) => e.stopPropagation()} className="download-icon" title="Download">
+                          <FaDownload />
+                        </a>
+                      )}
+                    </div>
 
                     <div onClick={(e) => e.stopPropagation()}>
                       {editingId === res.id ? (
