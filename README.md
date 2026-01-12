@@ -39,11 +39,11 @@ Resource Hub is a modern, centralized web application designed to capture, organ
 
 ```mermaid
 graph TD
-    User[User] -->|Access via Browser| Client[React Frontend (Vercel)]
+    User[User] -->|Access via Browser| Client["React Frontend (Vercel)"]
     
     subgraph "Supabase Backend"
         Auth[Authentication]
-        DB[(PostgreSQL Database)]
+        DB[("PostgreSQL Database")]
         Storage[File Storage]
     end
     
