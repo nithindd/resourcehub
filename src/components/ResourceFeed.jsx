@@ -486,7 +486,12 @@ function PreviewModal({ resource, onClose }) {
           {resource.type === 'image' && <img src={url} alt="preview" />}
           {resource.type === 'audio' && <audio controls src={url} />}
           {resource.type === 'pdf' && (
-            <iframe src={url} width="100%" height="500px"></iframe>
+            <div className="pdf-container">
+              <iframe src={url} width="100%" height="500px" title="PDF Preview"></iframe>
+              <a href={url} target="_blank" rel="noopener noreferrer" className="mobile-pdf-btn">
+                Open PDF in New Tab
+              </a>
+            </div>
           )}
           {resource.type === 'file' && (
             <div className="file-download">
@@ -545,6 +550,24 @@ function PreviewModal({ resource, onClose }) {
           color: var(--primary);
           text-decoration: underline;
         }
+        .pdf-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .mobile-pdf-btn {
+            display: block;
+            text-align: center;
+            background: var(--primary);
+            color: black;
+            padding: 0.8rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        /* Hide regular download link in favor of button for consistency if needed, 
+           but here we are styling the new button */
       `}</style>
     </div>
   );
