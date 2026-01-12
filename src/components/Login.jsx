@@ -1,39 +1,35 @@
 import { supabase } from '../supabaseClient';
-import { FaGoogle, FaMicrosoft, FaGlobe } from 'react-icons/fa';
+import { FaGoogle, FaGlobe } from 'react-icons/fa';
 
 export function Login() {
-    const handleLogin = async (provider) => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: provider,
-            options: {
-                // Redirect to the current page after login
-                redirectTo: window.location.origin
-            }
-        });
-        if (error) alert(error.message);
-    };
+  const handleLogin = async (provider) => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: provider,
+      options: {
+        // Redirect to the current page after login
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) alert(error.message);
+  };
 
-    return (
-        <div className="login-container">
-            <div className="login-card">
-                <div className="icon">
-                    <FaGlobe size={50} />
-                </div>
-                <h1>Welcome Back</h1>
-                <p>Sign in to access your resource capture.</p>
+  return (
+    <div className="login-container">
+      <div className="login-card">
+        <div className="icon">
+          <FaGlobe size={50} />
+        </div>
+        <h1>Welcome Back</h1>
+        <p>Sign in to access your resource capture.</p>
 
-                <div className="login-actions">
-                    <button className="btn-login google" onClick={() => handleLogin('google')}>
-                        <FaGoogle /> Sign in with Google
-                    </button>
+        <div className="login-actions">
+          <button className="btn-login google" onClick={() => handleLogin('google')}>
+            <FaGoogle /> Sign in with Google
+          </button>
+        </div>
+      </div>
 
-                    <button className="btn-login microsoft" onClick={() => handleLogin('azure')}>
-                        <FaMicrosoft /> Sign in with Microsoft
-                    </button>
-                </div>
-            </div>
-
-            <style>{`
+      <style>{`
         .login-container {
           min-height: 100vh;
           display: flex;
@@ -91,11 +87,7 @@ export function Login() {
         .btn-login.google {
           background: #DB4437;
         }
-        .btn-login.microsoft {
-          background: #2F2F2F; /* Microsoft Dark */
-          border: 1px solid rgba(255,255,255,0.1);
-        }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 }
