@@ -475,6 +475,27 @@ export function ResourceFeed({ session }) {
         }
         .action-btn.save { color: #4caf50; }
         .action-btn.cancel { color: #f44336; }
+
+        .meta-left {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .download-icon {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem; /* Slightly larger matching edit-cat-btn (ish) */
+        }
+        .download-icon:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
       `}</style>
     </div >
   );
