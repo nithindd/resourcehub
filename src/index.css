@@ -1,0 +1,53 @@
+:root {
+  --font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --line-height: 1.5;
+  --font-weight: 400;
+
+  /* HSL Color Palette (Premium/Modern) */
+  --color-bg-h: 220;
+  --color-bg-s: 20%;
+  --color-bg-l: 10%; /* Dark background */
+  
+  --color-surface-l: 16%;
+  --color-primary-h: 250; /* Violet/Purple */
+  --color-primary-s: 80%;
+  --color-primary-l: 60%;
+  
+  --color-text-main: #ffffff;
+  --color-text-muted: rgba(255, 255, 255, 0.7);
+
+  --bg: hsl(var(--color-bg-h), var(--color-bg-s), var(--color-bg-l));
+  --surface: hsl(var(--color-bg-h), var(--color-bg-s), var(--color-surface-l));
+  --primary: hsl(var(--color-primary-h), var(--color-primary-s), var(--color-primary-l));
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--font-family);
+  background-color: var(--bg);
+  color: var(--color-text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.card {
+  padding: 2em;
+}
