@@ -2,6 +2,8 @@
 
 Resource Hub is a modern, centralized web application designed to capture, organize, and store your digital resources. Whether it's web links, PDF documents, images, or audio files, Resource Hub provides a seamless interface to keep everything in one place, accessible across your devices.
 
+Application URL:https://resourcehubdeploy.vercel.app/
+
 ## 🚀 Features
 
 ### 🔐 Authentication & User Profile
